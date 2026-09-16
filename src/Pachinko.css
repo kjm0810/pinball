@@ -1,0 +1,320 @@
+.pk-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 12px 28px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at 50% -10%, #241a4d, #07050f 70%);
+  color: #e9e9f3;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.pk-title {
+  margin: 4px 0 0;
+  font-size: 22px;
+  letter-spacing: 8px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #ff3d81, #ffd23f, #40e0a0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pk-hud {
+  width: 440px;
+  max-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+.pk-hud > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.pk-hud span {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #9797b8;
+  white-space: nowrap;
+}
+
+.pk-hud strong {
+  font-size: 17px;
+  color: #ffd97a;
+  font-variant-numeric: tabular-nums;
+}
+
+.pk-hud strong em {
+  font-style: normal;
+  font-size: 13px;
+  color: #ff8fc4;
+}
+
+.pk-hud strong.low {
+  color: #ff5b6c;
+}
+.pk-hud strong.up {
+  color: #40e0a0;
+}
+.pk-hud strong.down {
+  color: #ff6b8a;
+}
+
+.pk-stage {
+  position: relative;
+  width: 440px;
+  max-width: 100%;
+  aspect-ratio: 440 / 700;
+}
+
+.pk-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 14px;
+  border: 2px solid rgba(120, 130, 255, 0.4);
+  box-shadow: 0 0 40px rgba(91, 108, 255, 0.3);
+  touch-action: none;
+  cursor: pointer;
+}
+
+.pk-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(6, 4, 16, 0.82);
+  backdrop-filter: blur(4px);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.pk-overlay h2 {
+  margin: 0;
+  font-size: 30px;
+  color: #ff5b6c;
+  letter-spacing: 3px;
+}
+
+/* 잭팟 당첨 = 게임 종료 화면 */
+.pk-win {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 14px;
+  background: radial-gradient(
+    circle at 50% 42%,
+    rgba(255, 90, 200, 0.42),
+    rgba(6, 4, 16, 0.94) 62%
+  );
+  backdrop-filter: blur(3px);
+  z-index: 6;
+  animation: pk-win-fade 0.3s ease, pk-win-shake 0.5s ease 3;
+  text-align: center;
+}
+
+.pk-win-eyebrow {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #ffd23f;
+}
+
+.pk-win-title {
+  font-size: 58px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  background: linear-gradient(90deg, #ffe259, #ff5bd0, #5b8bff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 20px rgba(255, 150, 90, 0.8));
+  animation: pk-win-pop 0.5s cubic-bezier(0.2, 1.5, 0.4, 1),
+    pk-win-hue 1.4s linear infinite;
+}
+
+.pk-win-prize {
+  font-size: 42px;
+  font-weight: 800;
+  color: #ffe259;
+  text-shadow: 0 0 16px rgba(255, 210, 80, 0.7);
+}
+
+.pk-win-sub {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #cfc9e6;
+}
+
+.pk-win-again {
+  margin-top: 8px;
+  padding: 12px 30px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6a5bff, #b45bff);
+  box-shadow: 0 4px 16px rgba(106, 91, 255, 0.5);
+}
+
+.pk-win-again:active {
+  transform: translateY(1px);
+}
+
+@keyframes pk-win-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pk-win-pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pk-win-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-7px);
+  }
+  75% {
+    transform: translateX(7px);
+  }
+}
+
+@keyframes pk-win-hue {
+  to {
+    filter: drop-shadow(0 0 22px rgba(255, 190, 90, 0.85)) hue-rotate(360deg);
+  }
+}
+
+.pk-log {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  pointer-events: none;
+}
+
+.pk-log li {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #9aa;
+  animation: pk-pop 0.25s ease;
+}
+
+.pk-log li.win {
+  color: #0a0;
+  background: rgba(64, 224, 160, 0.9);
+  color: #04240f;
+}
+
+.pk-log li.jackpot {
+  background: linear-gradient(90deg, #ff3d81, #ffd23f);
+  color: #2a0010;
+}
+
+@keyframes pk-pop {
+  from {
+    transform: translateX(12px);
+    opacity: 0;
+  }
+}
+
+.pk-controls {
+  width: 440px;
+  max-width: 100%;
+  display: flex;
+  gap: 8px;
+}
+
+.pk-controls button {
+  flex: 1;
+  padding: 13px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6a5bff, #b45bff);
+  box-shadow: 0 4px 14px rgba(106, 91, 255, 0.35);
+}
+
+.pk-controls button small {
+  display: block;
+  font-size: 10px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.pk-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pk-controls button.on {
+  background: linear-gradient(135deg, #40e0a0, #23b4b4);
+}
+
+.pk-controls button.ghost {
+  flex: 0 0 64px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.pk-controls button:not(:disabled):active {
+  transform: translateY(1px);
+  filter: brightness(1.15);
+}
+
+.pk-hint {
+  width: 440px;
+  max-width: 100%;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #8a8ab0;
+  text-align: center;
+}
