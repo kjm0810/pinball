@@ -1,173 +1,465 @@
 .pk-wrap {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px 12px 28px;
-  box-sizing: border-box;
-  background: radial-gradient(circle at 50% -10%, #241a4d, #07050f 70%);
+  gap: clamp(4px, 1.2vh, 14px);
+  padding: clamp(6px, 1.4vh, 18px) clamp(8px, 2.5vw, 18px);
   color: #e9e9f3;
   font-family: 'Segoe UI', system-ui, sans-serif;
+  background: transparent;
+  background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+  animation: pk-bg-drift 16s ease-in-out infinite;
+}
+
+.pk-wrap-jackpot {
+  animation: pk-bg-drift 4s ease-in-out infinite, pk-bg-flash 0.7s ease infinite alternate;
+}
+
+@keyframes pk-bg-drift {
+  0%,
+  100% {
+    background-position: 0% 0%, 100% 0%, 50% 100%, 50% 0%;
+  }
+  50% {
+    background-position: 25% 20%, 75% 25%, 40% 85%, 50% 0%;
+  }
+}
+
+@keyframes pk-bg-flash {
+  from {
+    filter: brightness(1) saturate(1);
+  }
+  to {
+    filter: brightness(1.3) saturate(1.4);
+  }
 }
 
 .pk-title {
-  margin: 4px 0 0;
-  font-size: 22px;
-  letter-spacing: 8px;
-  font-weight: 800;
-  background: linear-gradient(90deg, #ff3d81, #ffd23f, #40e0a0);
+  display: flex;
+  justify-content: center;
+  gap: clamp(1px, 0.9vw, 7px);
+  margin: 0;
+  flex: none;
+}
+
+.pk-title span {
+  font-size: clamp(20px, 4.8vh, 31px);
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  background: linear-gradient(180deg, #ffffff 0%, #ffe259 42%, #ff5bd0 75%, #5b8bff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-text-stroke: 0.7px rgba(20, 8, 35, 0.6);
+  filter: drop-shadow(0 0 10px rgba(255, 150, 220, 0.6))
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+  animation: pk-letter-bob 2.4s ease-in-out infinite;
+  transform-origin: bottom center;
+  display: inline-block;
 }
 
-.pk-hud {
-  width: 440px;
-  max-width: 100%;
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
+.pk-title span:nth-child(1) {
+  animation-delay: 0s;
+}
+.pk-title span:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.pk-title span:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.pk-title span:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.pk-title span:nth-child(5) {
+  animation-delay: 0.32s;
+}
+.pk-title span:nth-child(6) {
+  animation-delay: 0.4s;
+}
+.pk-title span:nth-child(7) {
+  animation-delay: 0.48s;
 }
 
-.pk-hud > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
+@keyframes pk-letter-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-4deg);
+  }
 }
 
-.pk-hud span {
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: #9797b8;
-  white-space: nowrap;
-}
-
-.pk-hud strong {
-  font-size: 17px;
-  color: #ffd97a;
-  font-variant-numeric: tabular-nums;
-}
-
-.pk-hud strong em {
-  font-style: normal;
-  font-size: 13px;
-  color: #ff8fc4;
-}
-
-.pk-hud strong.low {
-  color: #ff5b6c;
-}
-.pk-hud strong.up {
-  color: #40e0a0;
-}
-.pk-hud strong.down {
-  color: #ff6b8a;
-}
-
+/* 남는 세로 공간 + 화면 가로 전체를 모두 차지하는 바깥 컨테이너 */
 .pk-stage {
-  position: relative;
-  width: 440px;
-  max-width: 100%;
-  aspect-ratio: 440 / 700;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* 크기는 Pachinko.js가 인라인 style로 정확한 px를 넣어준다
+   (찌그러짐 없이 프레임 이미지 비율 그대로). 배경 이미지(A.png)는 .pk-frame-art가
+   담당 — 캔버스보다 위(z-index)에 두어서 테두리 아트가 캔버스 위로 올라오게 한다. */
+.pk-frame {
+  position: relative;
+}
+
+/* 캔버스는 프레임 안쪽(테두리 아트를 뺀 플레이 영역)에 인라인 style로 배치된다.
+   배경 이미지(B.png)는 webpack의 css-loader가 '/assets/...' 절대경로를 src
+   기준 모듈로 해석하려다 실패하는 문제가 있어서(public 폴더 자산이라 실제로는
+   존재), CSS의 url()이 아니라 Pachinko.js의 인라인 style(backgroundImage)로
+   넣는다 — A.png(.pk-frame-art)와 동일한 방식. */
 .pk-canvas {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  z-index: 1;
   display: block;
-  border-radius: 14px;
-  border: 2px solid rgba(120, 130, 255, 0.4);
-  box-shadow: 0 0 40px rgba(91, 108, 255, 0.3);
   touch-action: none;
   cursor: pointer;
+  background-repeat: no-repeat;
+  background-size: 200% 200%;
+  animation: pk-canvas-drift 12s ease-in-out infinite;
+  border-radius: 10px;
+}
+
+@keyframes pk-canvas-drift {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 25% 25%;
+  }
+}
+
+/* A.png(테두리 아트) — 캔버스 위에 겹쳐서 그린다. 이미지 가운데는 투명한
+   "창"이라 캔버스 내용은 그대로 비치고, 테두리 장식만 캔버스보다 앞에 보인다.
+   클릭/터치는 그대로 캔버스로 통과시킨다. */
+.pk-frame-art {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }
 
 .pk-overlay {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  background: rgba(6, 4, 16, 0.82);
-  backdrop-filter: blur(4px);
-  border-radius: 14px;
+  background: rgba(6, 4, 16, 0.85);
+  backdrop-filter: blur(5px);
+  border-radius: 16px;
   text-align: center;
 }
 
 .pk-overlay h2 {
   margin: 0;
-  font-size: 30px;
+  font-size: 33px;
   color: #ff5b6c;
   letter-spacing: 3px;
+  filter: drop-shadow(0 0 14px rgba(255, 91, 108, 0.6));
 }
 
-/* 잭팟 당첨 = 게임 종료 화면 */
-.pk-win {
+.pk-overlay button {
+  padding: 12px 28px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6a5bff, #b45bff);
+  box-shadow: 0 4px 18px rgba(106, 91, 255, 0.5);
+}
+
+/* 당첨 결과 / 설정 패널 — 공통 카드 */
+.pk-panel {
   position: absolute;
   inset: 0;
-  margin: 0;
+  z-index: 4;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  border-radius: 14px;
-  background: radial-gradient(
-    circle at 50% 42%,
-    rgba(255, 90, 200, 0.42),
-    rgba(6, 4, 16, 0.94) 62%
-  );
-  backdrop-filter: blur(3px);
-  z-index: 6;
-  animation: pk-win-fade 0.3s ease, pk-win-shake 0.5s ease 3;
-  text-align: center;
+  gap: 10px;
+  padding: 18px;
+  background: rgba(8, 6, 20, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  overflow-y: auto;
 }
 
-.pk-win-eyebrow {
-  font-size: 14px;
+.pk-panel h3 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: 1px;
+  color: #ffe259;
+  text-shadow: 0 0 10px rgba(255, 210, 90, 0.5);
+}
+
+/* 패널 상단에 고정되는 헤더 — 목록이 길어져 스크롤해도 제목/닫기 버튼이
+   항상 보이도록 한다(당첨 결과처럼 개수 제한 없는 목록의 가독성/사용성). */
+.pk-panel-header {
+  position: sticky;
+  top: -18px;
+  margin: -18px -18px 4px;
+  padding: 16px 18px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(8, 6, 20, 0.97);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pk-panel-close {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: 4px;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pk-panel-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pk-panel-empty {
+  margin: 0;
+  color: rgba(233, 233, 243, 0.6);
+  font-size: 14px;
+}
+
+.pk-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pk-log-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.pk-log-label {
+  font-weight: 800;
   color: #ffd23f;
 }
 
-.pk-win-title {
-  font-size: 58px;
-  font-weight: 900;
-  letter-spacing: 4px;
-  background: linear-gradient(90deg, #ffe259, #ff5bd0, #5b8bff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 20px rgba(255, 150, 90, 0.8));
-  animation: pk-win-pop 0.5s cubic-bezier(0.2, 1.5, 0.4, 1),
-    pk-win-hue 1.4s linear infinite;
+.pk-log-mult {
+  color: #7ce7c8;
+  font-weight: 700;
 }
 
-.pk-win-prize {
-  font-size: 42px;
-  font-weight: 800;
-  color: #ffe259;
-  text-shadow: 0 0 16px rgba(255, 210, 80, 0.7);
+.pk-log-payout {
+  color: #e9e9f3;
+  opacity: 0.85;
 }
 
-.pk-win-sub {
+.pk-log-donation {
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 6px !important;
+}
+
+.pk-log-donor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pk-log-chat {
+  font-size: 14px;
+  color: rgba(233, 233, 243, 0.65);
+  font-style: italic;
+}
+
+.pk-log-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pk-log-item-chip {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(80, 58, 10, 0.85);
+  color: #ffd23f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pk-log-item-miss {
+  background: rgba(40, 36, 58, 0.85);
+  color: #cfcfe0;
+}
+
+.pk-status-list {
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.pk-status-row {
+  background: rgba(64, 224, 160, 0.1) !important;
+}
+
+.pk-status-badge {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(64, 224, 160, 0.9);
+  color: #04240f;
   font-size: 12px;
-  letter-spacing: 2px;
-  color: #cfc9e6;
+  font-weight: 800;
 }
 
-.pk-win-again {
-  margin-top: 8px;
-  padding: 12px 30px;
+.pk-status-badge.pk-status-waiting {
+  background: rgba(255, 210, 63, 0.9);
+  color: #2a1c00;
+}
+
+.pk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  color: rgba(233, 233, 243, 0.85);
+}
+
+.pk-field input,
+.pk-field select {
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(30, 20, 55, 0.7);
+  color: #fff;
+  font-size: 16px;
+}
+
+.pk-field select option {
+  background: #1e1437;
+  color: #fff;
+}
+
+/* 체크박스처럼 라벨과 입력을 한 줄에 나란히 두는 변형(효과음 켜기/끄기 등). */
+.pk-field-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pk-field input[type='checkbox'],
+.pk-field input[type='range'] {
+  accent-color: #8a5bff;
+}
+
+.pk-field input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.pk-field input[type='range'] {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.pk-field input[type='range']:disabled {
+  opacity: 0.4;
+}
+
+.pk-subhead {
+  margin: 6px 0 -2px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: rgba(233, 233, 243, 0.6);
+  text-transform: uppercase;
+}
+
+/* 설정 패널을 의미 단위로 묶어 보여주는 카드 — 항목이 많아질수록(당첨칸을
+   자유롭게 추가) 어디까지가 한 그룹인지 구분이 안 되던 문제를 해결한다. */
+.pk-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.pk-settings-section .pk-subhead {
+  margin: 0;
+}
+
+.pk-tier-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.pk-tier-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.pk-tier-field-name {
+  flex: 1.6;
+}
+
+.pk-panel .pk-tier-remove {
+  flex: none;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.pk-panel-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.pk-panel button {
+  padding: 10px 0;
+  flex: 1;
   font-size: 15px;
   font-weight: 800;
   color: #fff;
@@ -175,118 +467,62 @@
   border-radius: 10px;
   cursor: pointer;
   background: linear-gradient(135deg, #6a5bff, #b45bff);
-  box-shadow: 0 4px 16px rgba(106, 91, 255, 0.5);
 }
 
-.pk-win-again:active {
-  transform: translateY(1px);
-}
-
-@keyframes pk-win-fade {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes pk-win-pop {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes pk-win-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-7px);
-  }
-  75% {
-    transform: translateX(7px);
-  }
-}
-
-@keyframes pk-win-hue {
-  to {
-    filter: drop-shadow(0 0 22px rgba(255, 190, 90, 0.85)) hue-rotate(360deg);
-  }
-}
-
-.pk-log {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  pointer-events: none;
-}
-
-.pk-log li {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.45);
-  color: #9aa;
-  animation: pk-pop 0.25s ease;
-}
-
-.pk-log li.win {
-  color: #0a0;
-  background: rgba(64, 224, 160, 0.9);
-  color: #04240f;
-}
-
-.pk-log li.jackpot {
-  background: linear-gradient(90deg, #ff3d81, #ffd23f);
-  color: #2a0010;
-}
-
-@keyframes pk-pop {
-  from {
-    transform: translateX(12px);
-    opacity: 0;
-  }
+.pk-panel button.ghost {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .pk-controls {
-  width: 440px;
-  max-width: 100%;
+  flex: none;
+  width: 100%;
+  max-width: 640px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .pk-controls button {
+  position: relative;
+  overflow: hidden;
   flex: 1;
-  padding: 13px 0;
-  font-size: 14px;
-  font-weight: 700;
+  padding: clamp(10px, 1.8vh, 15px) 0;
+  font-size: 15px;
+  font-weight: 800;
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   background: linear-gradient(135deg, #6a5bff, #b45bff);
-  box-shadow: 0 4px 14px rgba(106, 91, 255, 0.35);
+  box-shadow: 0 4px 18px rgba(106, 91, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.pk-controls button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.4) 35%, transparent 50%);
+  transform: translateX(-130%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.pk-controls button:not(:disabled):hover::after {
+  transform: translateX(130%);
+}
+
+.pk-controls button:not(:disabled):hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(106, 91, 255, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .pk-controls button small {
   display: block;
-  font-size: 10px;
-  opacity: 0.8;
-  font-weight: 500;
+  font-size: 11px;
+  opacity: 0.85;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
 .pk-controls button:disabled {
@@ -296,25 +532,44 @@
 
 .pk-controls button.on {
   background: linear-gradient(135deg, #40e0a0, #23b4b4);
+  box-shadow: 0 4px 18px rgba(64, 224, 160, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: pk-btn-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pk-btn-pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 18px rgba(64, 224, 160, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(64, 224, 160, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* 정지 상태 — 후원이 들어와도 실행되지 않는다는 걸 눈에 띄게 알린다. */
+.pk-controls button.warn {
+  background: linear-gradient(135deg, #ff8a3d, #ff4d6a);
+  box-shadow: 0 4px 18px rgba(255, 90, 90, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: pk-btn-pulse-warn 1.2s ease-in-out infinite;
+}
+
+@keyframes pk-btn-pulse-warn {
+  0%,
+  100% {
+    box-shadow: 0 4px 18px rgba(255, 90, 90, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(255, 90, 90, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
 }
 
 .pk-controls button.ghost {
-  flex: 0 0 64px;
+  flex: 0 0 66px;
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .pk-controls button:not(:disabled):active {
   transform: translateY(1px);
   filter: brightness(1.15);
-}
-
-.pk-hint {
-  width: 440px;
-  max-width: 100%;
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.6;
-  color: #8a8ab0;
-  text-align: center;
 }
